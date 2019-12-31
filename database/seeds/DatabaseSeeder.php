@@ -9,7 +9,7 @@ class DatabaseSeeder extends Seeder
 {
     /**
      * Seed the application's database.
-     *sudo composer require graham-campbell/github php-http/guzzle6-adapter:^2.0
+     *
      * @return void
      */
     public function run()
@@ -28,10 +28,10 @@ class DatabaseSeeder extends Seeder
         // https://github.com/KnpLabs/php-github-api/blob/master/doc/result_pager.md
 
 
-        $repos = GitHub::organizations()->repositories(env('GITHUB_ORGANISATION'));
-
+        $paginator  = new \Github\ResultPager(GitHub::connection());
+        $parameters = array(env('GITHUB_ORGANISATION'));
+        $repos      = $paginator->fetchAll(GitHub::organizations(), 'repositories', $parameters);
         // Insert repos
-
         foreach ($repos AS $repo) {
             echo $repo['name'] .PHP_EOL;
             $commits = GitHub::repo()->commits()->all(env('GITHUB_ORGANISATION'), $repo['name'], array('sha' => 'master'));
@@ -46,7 +46,9 @@ class DatabaseSeeder extends Seeder
             echo "...............Fetching weekly commits................".PHP_EOL;
             echo "......................................................".PHP_EOL;
 
-            $repo_authors = GitHub::repo()->statistics(env('GITHUB_ORGANISATION'), $repo['name']);
+            $paginator      = new \Github\ResultPager(GitHub::connection());
+            $parameters     = array(env('GITHUB_ORGANISATION'), $repo['name']);
+            $repo_authors   = $paginator->fetchAll(GitHub::repo(), 'statistics', $parameters);
 
             echo "******* ".$repo['name'] ."[".count($repo_authors)." authors] *******\n";
 
