@@ -40,7 +40,7 @@ You should then be able to access the web interface through [http://localhost:80
 
 ##Reference
 - https://developer.github.com/v3/
-- https://github.com/KnpLabs/php-github-api
+- https://github.com/GrahamCampbell/Laravel-GitHub
 - https://laravel.com/docs/6.x
 
 
