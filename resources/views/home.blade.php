@@ -66,7 +66,7 @@
                     </div>
                     <div class="row">
                         <div class="col-md-12 text-center">
-                            <button type="submit" id="find-now" class="btn btn-default" name="button">Find Now!</button>
+                            <button type="submit" id="find-now" class="btn btn-default" name="button" value="Find Now!">Find Now!</button>
                             <button type="reset" class="btn btn-cancel" name="clear" onclick="document.location='/';">Clear</button>
                         </div>
                     </div>

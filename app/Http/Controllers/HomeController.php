@@ -25,7 +25,7 @@ class HomeController extends Controller
 
         if(!isset($requestData['report_type'])) $requestData['report_type'] = 'commits_by_week';
         if(!isset($requestData['output_type'])) $requestData['output_type'] = 'absolute';
-        if(!isset($requestData['date_from'])) $requestData['date_from'] = '2019-12-23';
+        if(!isset($requestData['date_from'])) $requestData['date_from'] = '2019-12-01';
         if(!isset($requestData['date_to'])) $requestData['date_to'] = date('Y-m-d');
 
 
@@ -38,10 +38,8 @@ class HomeController extends Controller
         $repos = array();
         $commitsMap = array();
         $commitsAuthorRepo = array();
-
         if (isset($requestData['button'])) {
             // Get Author Info
-
             $dataAuthors = Author::all()->toArray();
             foreach($dataAuthors as $dataAuthor) {
                 $authors[$dataAuthor['id']] = $dataAuthor;
@@ -145,6 +143,7 @@ class HomeController extends Controller
                 }
             }
         }
+       // print_r($authorCommits);exit();
 
         return view('home',
             [
