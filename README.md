@@ -19,15 +19,26 @@ Add your github API keys to the config file. You can set up a personal access to
 cp .env.example .env
 vim .env
 ```
+
 - update **GITHUB_PERSONAL_ACCESS_TOKEN_USER** 
 - update **GITHUB_PERSONAL_ACCESS_TOKEN_PASSWORD** 
 - update **GITHUB_ORGANISATION**
+
+### Generate Database
+```
+php artisan migrate
+``` 
+### Preview
+<p align="center">
+  <img width="460" src="resources/ss/s0.png">
+  <hr>
+  <img width="460" src="resources/ss/s1.png">
+</p>
  
 ## Running the import script
 
 Import your repository commit data into the local SQLite database by running the import script from your command line:
 ```
-php artisan migrate
 php artisan db:seed
 ```
 
