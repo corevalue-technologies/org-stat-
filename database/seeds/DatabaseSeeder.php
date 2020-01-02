@@ -15,6 +15,7 @@ class DatabaseSeeder extends Seeder
     public function run()
     {
         // $this->call(UsersTableSeeder::class);
+
         WeeklyCommit::query()->truncate();
         Author::query()->truncate();
         Repository::query()->truncate();
@@ -35,6 +36,7 @@ class DatabaseSeeder extends Seeder
         foreach ($repos AS $repo) {
             echo $repo['name'] .PHP_EOL;
             $commits = GitHub::repo()->commits()->all(env('GITHUB_ORGANISATION'), $repo['name'], array('sha' => 'master'));
+
             Repository::create(array(
                 'id' => $repo['id'],
                 'name' => $repo['name'],

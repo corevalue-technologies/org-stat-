@@ -1,4 +1,4 @@
-q<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
     <head>
         <meta charset="utf-8">
@@ -10,18 +10,15 @@ q<!DOCTYPE html>
         <link href="https://fonts.googleapis.com/css?family=Nunito:200,600" rel="stylesheet">
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
         <link href="{{ asset('css/app.css') }}" rel="stylesheet">
-
         <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
-
     </head>
     <body>
-        <div class="content">
-            <div class="flex-center position-ref full-height">
-                <div class="title m-b-md">
+        <div class="flex-center position-ref full-height1">
+            <div class="content">
+                <div class="page-title m-b-md">
                     Github Contributor Statistics
                 </div>
                 <p>A tool to display all Github contributor statistics for {{env('GITHUB_ORGANISATION')}}.</p>
-
                 <form method="get" action="">
                     <div class="row">
                         <div class='col-md-3'>
@@ -74,129 +71,116 @@ q<!DOCTYPE html>
                         </div>
                     </div>
                 </form>
+
                 @if(!isset($_GET['button']))
-                    <table class="table table-striped table-dark table-hover">
-                        <tr>
-                            <th>Name</th>
-                            <th>Count</th>
-                        </tr>
-                        @php
-                            $totalCount = 0
-                        @endphp
-                        @foreach($overAllStats as $overAllStat)
-                            <tr>
-                                <td>{{$overAllStat['fullname']}}</td>
-                                <td class="text-center">{{$overAllStat['total_repos']}}
-                                    @php
-                                        $totalCount += $overAllStat['total_repos'];
-                                    @endphp
-                                </td>
-                            </tr>
-                        @endforeach
-                        <tr>
-                            <td>Total</td>
-                            <td class="text-center">{{$totalCount}}</td>
-                        </tr>
-                    </table>
-                @else
-                    <div class="row">
-                        <div class="page-header">
-                            <h2>{{$reportTypes[$request['report_type']]}}</h2>
+
+                    @foreach($overAllStats as $i =>$overAllStat)
+                        @if($i % 3  == 0)
+                        <div class="row justify-content-center">
+                        @endif
+                            <div class="col-md-4 card">
+                                <img src="{{$overAllStat['author']['avatar_url']}}" alt="John" style="width:100%">
+                                <h3>{{$overAllStat['fullname']}}</h3>
+                                <p class="title">{{$overAllStat['total_repos']}} @if($overAllStat['total_repos']==1) Repository @else Repositories @endif</p>
+                                <p>{{$overAllStat['repositories']['repo_names']}}</p>
+                                <p><a href="{{$overAllStat['author']['html_url']}}" target="_blank"><button>View</button></a></p>
+                            </div>
+                        @if(($i+1) % 3  == 0)
                         </div>
+                        @endif
+                    @endforeach
+                    @if(count($overAllStats) % 3  != 0)
                     </div>
-                    <div class="row">
-                        <table class="table table-striped table-dark table-hover">
-                        @switch($request['report_type'])
-                            @case('commits_by_week')
-                                <thead>
-                                    <tr>
-                                        <th>User</th>
-                                        <th>Repository</th>
-                                        @php $i=1 @endphp
-                                        @foreach($weeks as $week)
-                                            <th>{{$i++}}</th>
-                                        @endforeach
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach ($authors as $author_id => $author)
-                                        @foreach ($repos as $repo_id => $repo)
-                                            @if (isset($commitsMap[$author_id][$repo_id]))
-                                                <tr>
-                                                    <td>{{$author['username']}}</td>
-                                                    <td>{{$repo['name']}}</td>
-                                                    @foreach ($weeks as $week_id => $week)
-                                                        @if (isset($commitsMap[$author_id][$repo_id][$week_id]))
-            {{--                                                    <td>".display_commits($_GET['output_type'], $commitsMap[$author_id][$repo_id][$week_id]['commits'], $authors[$author_id]['total_commits'])."</td>\n";--}}
-                                                            <td>display_commits</td>
-                                                        @else
-                                                            <td>&nbsp;</td>
-                                                        @endif
-                                                    @endforeach
-                                               </tr>
-                                            @endif
-                                        @endforeach
-                                    @endforeach
-                                </tbody>
-
-                            @break
-                            @case('commits_by_author')
-                                <thead>
-                                    <tr>
-                                        <th>#</th>
-                                        <th>User</th>
-                                        <th>Commits</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
+                    @endif
+                @else
+                    <div class="page-header">
+                        <h2>{{$reportTypes[$request['report_type']]}}</h2>
+                    </div>
+                    <div class="table-fixed">
+                    <table class="table table-striped table-dark table-hover">
+                    @switch($request['report_type'])
+                        @case('commits_by_week')
+                            <thead>
+                                <tr>
+                                    <th>User</th>
+                                    <th>Repository</th>
                                     @php $i=1 @endphp
-                                    @foreach ($author_commits as $author_id => $num_commits)
-                                    <tr>
-                                        <td>{{$i++}}</td>
-                                        <td>{{$authors[$author_id]['username']}}</td>
-                                        <td>{{$num_commits}}</td>
-                                    </tr>
+                                    @foreach($weeks as $week)
+                                        <th>{{$i++}}</th>
                                     @endforeach
-                                </tbody>
-                            @break
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($authors as $author_id => $author)
+                                    @foreach ($repos as $repo_id => $repo)
+                                        @if (isset($commitsMap[$author_id][$repo_id]))
+                                            <tr>
+                                                <td>{{$author['username']}}</td>
+                                                <td>{{$repo['name']}}</td>
+                                                @foreach ($weeks as $week_id => $week)
+                                                    @if (isset($commitsMap[$author_id][$repo_id][$week_id]))
+                                                        <td>{{\App\Utils::displayCommits($request['output_type'], $commitsMap[$author_id][$repo_id][$week_id]['commits'], $authors[$author_id]['total_commits'])}}</td>
+                                                    @else
+                                                        <td>&nbsp;</td>
+                                                    @endif
+                                                @endforeach
+                                           </tr>
+                                        @endif
+                                    @endforeach
+                                @endforeach
+                            </tbody>
 
-                            @case('commits_by_project')
-                                <thead>
-                                    <tr>
-                                        <th>User</th>
-                                        <th>Project</th>
-                                    </tr>
+                        @break
+                        @case('commits_by_author')
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>User</th>
+                                    <th>Commits</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @php $i=1 @endphp
+                                @foreach ($authorCommits as $author_id => $num_commits)
+                                <tr>
+                                    <td>{{$i++}}</td>
+                                    <td>{{$authors[$author_id]['username']}}</td>
+                                    <td>{{$num_commits}}</td>
+                                </tr>
+                                @endforeach
+                            </tbody>
+                        @break
 
-                                    </tr>
-                                    <th>&nbsp;</th>
-                                    @foreach ($repo_commits as $repo_id => $num_commits)
+                        @case('commits_by_project')
+                            <thead>
+                                <tr>
+                                    <th>User</th>
+                                    @foreach ($repoCommits as $repo_id => $num_commits)
                                     <th>{{$repos[$repo_id]['name']}}</th>
                                     @endforeach
                                     <th>TOTALS</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach ($author_commits as $author_id => $num_commits)
-                                    <tr>
-                                        <td>{{$authors[$author_id]['username']}}</td>
-                                        @foreach ($repo_commits as $repo_id => $num_commits)
-                                        <td>
-                                            @if(!isset($commits_author_repo[$author_id][$repo_id]['total_commits']))
-                                                    $commits_author_repo[$author_id][$repo_id]['total_commits'] = 0;
-                                            @endif
-                                            @if(!isset($authors[$author_id]['total_commits']))
-                                                    $authors[$author_id]['total_commits'] = 0;
-                                            @endif
-                                            display_commits
-                                        </td>
-                                        @endforeach
-                                        <td>{{$authors[$author_id]['total_commits']}}</td>
-                                    </tr>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($authorCommits as $author_id => $num_commits)
+                                <tr>
+                                    <td>{{$authors[$author_id]['username']}}</td>
+                                    @foreach ($repoCommits as $repo_id => $num_commits)
+                                    <td>
+                                        @php
+                                        $commitsAuthorRepo[$author_id][$repo_id]['total_commits'] = isset($commitsAuthorRepo[$author_id][$repo_id]['total_commits']) ? $commitsAuthorRepo[$author_id][$repo_id]['total_commits'] : 0;
+                                        $authors[$author_id]['total_commits'] = isset($authors[$author_id]['total_commits']) ? $authors[$author_id]['total_commits'] : 0;
+                                        @endphp
+                                        {{\App\Utils::displayCommits($request['output_type'], $commitsAuthorRepo[$author_id][$repo_id]['total_commits'], $authors[$author_id]['total_commits'])}}
+                                    </td>
                                     @endforeach
-                                </tbody>
-                            @break
-                        @endswitch
-                        </table>
+                                    <td>{{$authors[$author_id]['total_commits']}}</td>
+                                </tr>
+                                @endforeach
+                            </tbody>
+                        @break
+                    @endswitch
+                    </table>
                     </div>
                 @endif
             </div>

@@ -37,8 +37,9 @@ class HomeController extends Controller
         $authors = array();
         $repos = array();
         $commitsMap = array();
+        $commitsAuthorRepo = array();
 
-        if (isset($requestData['button']) == null) {
+        if (isset($requestData['button'])) {
             // Get Author Info
 
             $dataAuthors = Author::all()->toArray();
@@ -67,16 +68,16 @@ class HomeController extends Controller
 
                 $weeks[$weeklyCommit['week']] = $weeklyCommit['week'];
 
-                if(!isset($commits_author_repo))
-                    $commits_author_repo = array();
-                if(!isset($commits_author_repo[$weeklyCommit['author_id']]))
-                    $commits_author_repo[$weeklyCommit['author_id']] = array();
-                if(!isset($commits_author_repo [$weeklyCommit['author_id']] [$weeklyCommit['repository_id']]))
-                    $commits_author_repo [$weeklyCommit['author_id']] [$weeklyCommit['repository_id']] = array();
-                if(!isset($commits_author_repo [$weeklyCommit['author_id']] [$weeklyCommit['repository_id']] ['total_commits']))
-                    $commits_author_repo [$weeklyCommit['author_id']] [$weeklyCommit['repository_id']] ['total_commits'] = 0;
+                if(!isset($commitsAuthorRepo))
+                    $commitsAuthorRepo = array();
+                if(!isset($commitsAuthorRepo[$weeklyCommit['author_id']]))
+                    $commitsAuthorRepo[$weeklyCommit['author_id']] = array();
+                if(!isset($commitsAuthorRepo [$weeklyCommit['author_id']] [$weeklyCommit['repository_id']]))
+                    $commitsAuthorRepo [$weeklyCommit['author_id']] [$weeklyCommit['repository_id']] = array();
+                if(!isset($commitsAuthorRepo [$weeklyCommit['author_id']] [$weeklyCommit['repository_id']] ['total_commits']))
+                    $commitsAuthorRepo [$weeklyCommit['author_id']] [$weeklyCommit['repository_id']] ['total_commits'] = 0;
 
-                $commits_author_repo [$weeklyCommit['author_id']] [$weeklyCommit['repository_id']] ['total_commits'] += $weeklyCommit ['commits'];
+                $commitsAuthorRepo [$weeklyCommit['author_id']] [$weeklyCommit['repository_id']] ['total_commits'] += $weeklyCommit ['commits'];
 
                 if(!isset($repos[$weeklyCommit['repository_id']])) {
                     $repos[$weeklyCommit['repository_id']] = array();
@@ -126,22 +127,38 @@ class HomeController extends Controller
 
         } else {
             $overAllStats = Repository::select('fullname', DB::raw('count(1) AS total_repos'))->groupBy('fullname')->orderBy(DB::raw('count(1)'), 'DESC')->get()->toArray();
+            foreach ($overAllStats as &$overAllStat) {
+                $overAllStat['repositories'] = Repository::select(DB::raw('group_concat(name) as repo_names'))->where('fullname','=',$overAllStat['fullname'])->first()->toArray();
+
+                $repositories = Repository::where('fullname','=',$overAllStat['fullname'])->get()->toArray();
+                foreach ($repositories  as $repository) {
+                    $overAllStat['author'] = Author::select('authors.html_url', 'authors.avatar_url')->leftJoin('weekly_commits', 'weekly_commits.author_id', '=', 'authors.id')
+                        ->leftJoin('repositories', 'repositories.id', '=', 'weekly_commits.repository_id')
+                        ->where('repositories.name', '=', $repository['name'])->first();
+                    if($overAllStat['author'] != null) {
+                        $overAllStat['author'] = $overAllStat['author']->toArray();
+                    }
+                    else {
+                        $overAllStat['author']['html_url'] = '#';
+                        $overAllStat['author']['avatar_url'] = 'https://via.placeholder.com/400x400?text=NO+IMAGE';
+                    }
+                }
+            }
         }
-
-
 
         return view('home',
             [
-                'outputTypes'   =>$outputTypes,
-                'reportTypes'   => $reportTypes,
-                'request'       => $requestData,
-                'overAllStats'  => $overAllStats,
-                'authorCommits' => $authorCommits,
-                'repoCommits'   => $repoCommits,
-                'commitsMap'   => $commitsMap,
-                'weeks'         => $weeks,
-                'authors'       => $authors,
-                'repos'         => $repos
+                'outputTypes'       => $outputTypes,
+                'reportTypes'       => $reportTypes,
+                'request'           => $requestData,
+                'overAllStats'      => $overAllStats,
+                'authorCommits'     => $authorCommits,
+                'repoCommits'       => $repoCommits,
+                'commitsAuthorRepo' => $commitsAuthorRepo,
+                'commitsMap'        => $commitsMap,
+                'weeks'             => $weeks,
+                'authors'           => $authors,
+                'repos'             => $repos
             ]
         );
     }
