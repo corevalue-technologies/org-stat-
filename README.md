@@ -1,12 +1,12 @@
 # org-stat
 Github Org Stats!
 
-##Pre-requisite
+## Pre-requisite
 - PHP 7.x
 - https://getcomposer.org/download/
 
 
-##Setup
+## Setup
 Run composer to install dependencies.
 ```
 composer install
@@ -23,14 +23,15 @@ vim .env
 - update **GITHUB_PERSONAL_ACCESS_TOKEN_PASSWORD** 
 - update **GITHUB_ORGANISATION**
  
-##Running the import script
+## Running the import script
 
 Import your repository commit data into the local SQLite database by running the import script from your command line:
 ```
-php -f src/import.php
+php artisan migrate
+php artisan db:seed
 ```
 
-##Viewing the web interface
+## Viewing the web interface
 You can access the web interface through PHP's built in web-server. To use PHP's webserver run the following command from your command line:
 ```
 php artisan serve
@@ -38,7 +39,7 @@ php artisan serve
 
 You should then be able to access the web interface through [http://localhost:8000](http://localhost:8000)
 
-##Reference
+## Reference
 - https://developer.github.com/v3/
 - https://github.com/GrahamCampbell/Laravel-GitHub
 - https://laravel.com/docs/6.x
